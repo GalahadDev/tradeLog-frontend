@@ -264,7 +264,7 @@ const Journal = () => {
                       <TableHead>Salida</TableHead>
                       <TableHead>Size</TableHead>
                       <TableHead>Comisión</TableHead>
-                      <TableHead>PnL Neto</TableHead>
+                      <TableHead>PnL Bruto</TableHead>
                       <TableHead className="text-center">Foto</TableHead>
                       <TableHead className="text-right">Acciones</TableHead>
                     </TableRow>

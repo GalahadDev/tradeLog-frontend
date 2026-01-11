@@ -4,7 +4,7 @@ import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { dashboardService } from "@/lib/api";
 import { TradingStats } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, TrendingUp, TrendingDown, BarChart3, Target, Zap, DollarSign, Activity, Percent, ArrowUpRight, ArrowDownRight, Flame, Shield, AlertTriangle } from "lucide-react";
+import { Loader2, TrendingUp, TrendingDown, BarChart3, Target, Zap, DollarSign, Activity, Percent, ArrowUpRight, ArrowDownRight, Flame, Shield, AlertTriangle, Receipt } from "lucide-react";
 import {
   PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer
 } from "recharts";
@@ -18,7 +18,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
         <p className="text-sm font-medium text-foreground mb-1">{label || payload[0].name}</p>
         <p className="text-sm text-muted-foreground font-mono">
           {payload[0].name.includes('Rate') || payload[0].name.includes('%')
-            ? `${payload[0].value}%` 
+            ? `${payload[0].value}%`
             : payload[0].value.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
         </p>
       </div>
@@ -121,8 +121,8 @@ const Stats = () => {
   ];
 
   const directionData = [
-    { name: "Long", winRate: parseFloat(stats.long_win_rate) },
-    { name: "Short", winRate: parseFloat(stats.short_win_rate) }
+    { name: "Largo", winRate: parseFloat(stats.long_win_rate) },
+    { name: "Corto", winRate: parseFloat(stats.short_win_rate) }
   ];
 
   // Helper para asignar color de hover dinámico
@@ -132,7 +132,7 @@ const Stats = () => {
   return (
     <DashboardLayout>
       <div className="container mx-auto px-6 py-8 max-w-7xl">
-        
+
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -162,7 +162,7 @@ const Stats = () => {
             value={Number(stats.total_net_profit).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
             color="from-profit to-profit/50"
             textColor={Number(stats.total_net_profit) >= 0 ? "text-profit" : "text-loss"}
-            hoverColor={getProfitHover(stats.total_net_profit)} 
+            hoverColor={getProfitHover(stats.total_net_profit)}
             delay={0.1}
           />
           <LargeStatCard
@@ -176,7 +176,7 @@ const Stats = () => {
           />
           <LargeStatCard
             icon={Percent}
-            label="Win Rate Total"
+            label="Tasa de Acierto Total"
             value={Number(stats.win_rate).toFixed(2)}
             color="from-chart-line to-chart-line/50"
             textColor="text-chart-line"
@@ -250,7 +250,7 @@ const Stats = () => {
                   <BarChart data={profitLossData} layout="vertical">
                     <XAxis type="number" hide />
                     <YAxis type="category" dataKey="name" hide />
-                    <Tooltip content={<CustomTooltip />} cursor={{ fill: 'transparent' }} /> 
+                    <Tooltip content={<CustomTooltip />} cursor={{ fill: 'transparent' }} />
                     <Bar dataKey="value" radius={[0, 4, 4, 0]}>
                       {profitLossData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.fill} />
@@ -260,9 +260,9 @@ const Stats = () => {
                 </ResponsiveContainer>
               </div>
               <div className="flex justify-center gap-3 mt-2 flex-wrap">
-                 <span className="text-xs text-muted-foreground flex items-center gap-1"><div className="w-2 h-2 bg-profit rounded-full"></div> Bruto</span>
-                 <span className="text-xs text-muted-foreground flex items-center gap-1"><div className="w-2 h-2 bg-loss rounded-full"></div> Pérdida</span>
-                 <span className="text-xs text-muted-foreground flex items-center gap-1"><div className="w-2 h-2 bg-gold rounded-full"></div> Neto</span>
+                <span className="text-xs text-muted-foreground flex items-center gap-1"><div className="w-2 h-2 bg-profit rounded-full"></div> Bruto</span>
+                <span className="text-xs text-muted-foreground flex items-center gap-1"><div className="w-2 h-2 bg-loss rounded-full"></div> Pérdida</span>
+                <span className="text-xs text-muted-foreground flex items-center gap-1"><div className="w-2 h-2 bg-gold rounded-full"></div> Neto</span>
               </div>
             </CardContent>
           </Card>
@@ -287,11 +287,11 @@ const Stats = () => {
               </div>
               <div className="flex justify-around mt-2">
                 <div className="text-center">
-                  <p className="text-xs text-muted-foreground">Long</p>
+                  <p className="text-xs text-muted-foreground">Largo</p>
                   <p className={`text-sm font-bold ${Number(stats.long_win_rate) > 50 ? 'text-profit' : 'text-muted-foreground'}`}>{Number(stats.long_win_rate).toFixed(1)}%</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-xs text-muted-foreground">Short</p>
+                  <p className="text-xs text-muted-foreground">Corto</p>
                   <p className={`text-sm font-bold ${Number(stats.short_win_rate) > 50 ? 'text-profit' : 'text-muted-foreground'}`}>{Number(stats.short_win_rate).toFixed(1)}%</p>
                 </div>
               </div>
@@ -300,7 +300,7 @@ const Stats = () => {
         </motion.div>
 
         {/* 3. Tarjetas de Detalle (Grid de 4x) */}
-        
+
         {/* Sección: PnL Detallado */}
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }} className="mb-6">
           <h2 className="text-lg font-semibold text-foreground mb-3 flex items-center gap-2">
@@ -311,6 +311,11 @@ const Stats = () => {
             <StatCard icon={TrendingDown} label="Pérdida Bruta" value={stats.gross_loss} color="from-loss/80 to-loss/40" hoverColor="hover:border-loss/50" delay={0.55} prefix="$" />
             <StatCard icon={ArrowUpRight} label="Mejor Trade" value={stats.largest_win} color="from-profit/80 to-profit/40" hoverColor="hover:border-profit/50" delay={0.6} prefix="$" />
             <StatCard icon={ArrowDownRight} label="Peor Trade" value={stats.largest_loss} color="from-loss/80 to-loss/40" hoverColor="hover:border-loss/50" delay={0.65} prefix="$" />
+            <div className="col-span-2 md:col-span-4 grid grid-cols-1 justify-items-center">
+              <div className="w-full md:w-1/2">
+                <StatCard icon={Receipt} label="Comisiones Totales" value={stats.total_commissions} color="from-orange-500/80 to-orange-500/40" hoverColor="hover:border-orange-500/50" delay={0.68} prefix="$" />
+              </div>
+            </div>
           </div>
         </motion.div>
 
@@ -320,10 +325,10 @@ const Stats = () => {
             <Zap className="w-5 h-5 text-gold" /> Riesgo y Eficiencia
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <StatCard icon={Shield} label="Recovery Factor" value={Number(stats.recovery_factor).toFixed(2)} color="from-chart-line/80 to-chart-line/40" hoverColor="hover:border-chart-line/50" delay={0.75} />
-            <StatCard icon={Activity} label="Sharpe Ratio" value={Number(stats.sharpe_ratio).toFixed(2)} color="from-primary/80 to-primary/40" hoverColor="hover:border-primary/50" delay={0.8} />
-            <StatCard icon={DollarSign} label="Expectancy" value={stats.expected_payoff} color="from-gold/80 to-gold/40" hoverColor="hover:border-gold/50" delay={0.85} prefix="$" />
-            <StatCard icon={AlertTriangle} label="Max Drawdown" value={stats.max_drawdown} color="from-loss/80 to-loss/40" hoverColor="hover:border-loss/50" delay={0.9} prefix="$" />
+            <StatCard icon={Shield} label="Factor de Recuperación" value={Number(stats.recovery_factor).toFixed(2)} color="from-chart-line/80 to-chart-line/40" hoverColor="hover:border-chart-line/50" delay={0.75} />
+            <StatCard icon={Activity} label="Ratio de Sharpe" value={Number(stats.sharpe_ratio).toFixed(2)} color="from-primary/80 to-primary/40" hoverColor="hover:border-primary/50" delay={0.8} />
+            <StatCard icon={DollarSign} label="Esperanza Matemática" value={stats.expected_payoff} color="from-gold/80 to-gold/40" hoverColor="hover:border-gold/50" delay={0.85} prefix="$" />
+            <StatCard icon={AlertTriangle} label="Drawdown Máximo" value={stats.max_drawdown} color="from-loss/80 to-loss/40" hoverColor="hover:border-loss/50" delay={0.9} prefix="$" />
           </div>
         </motion.div>
 
@@ -333,10 +338,10 @@ const Stats = () => {
             <Flame className="w-5 h-5 text-loss" /> Rachas y Promedios
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <StatCard icon={TrendingUp} label="Avg Win" value={stats.avg_win} color="from-profit/80 to-profit/40" hoverColor="hover:border-profit/50" delay={1.1} prefix="$" />
-            <StatCard icon={TrendingDown} label="Avg Loss" value={stats.avg_loss} color="from-loss/80 to-loss/40" hoverColor="hover:border-loss/50" delay={1.15} prefix="$" />
-            <StatCard icon={Flame} label="Racha Ganadora" value={`${stats.max_consecutive_wins} (${Number(stats.max_consecutive_profit_usd).toLocaleString('en-US', {style:'currency', currency:'USD'})})`} color="from-gold/80 to-gold/40" hoverColor="hover:border-gold/50" delay={1.2} />
-            <StatCard icon={AlertTriangle} label="Racha Perdedora" value={`${stats.max_consecutive_losses} (${Number(stats.max_consecutive_loss_usd).toLocaleString('en-US', {style:'currency', currency:'USD'})})`} color="from-loss/80 to-loss/40" hoverColor="hover:border-loss/50" delay={1.25} />
+            <StatCard icon={TrendingUp} label="Ganancia Promedio" value={stats.avg_win} color="from-profit/80 to-profit/40" hoverColor="hover:border-profit/50" delay={1.1} prefix="$" />
+            <StatCard icon={TrendingDown} label="Pérdida Promedio" value={stats.avg_loss} color="from-loss/80 to-loss/40" hoverColor="hover:border-loss/50" delay={1.15} prefix="$" />
+            <StatCard icon={Flame} label="Racha Ganadora" value={`${stats.max_consecutive_wins} (${Number(stats.max_consecutive_profit_usd).toLocaleString('en-US', { style: 'currency', currency: 'USD' })})`} color="from-gold/80 to-gold/40" hoverColor="hover:border-gold/50" delay={1.2} />
+            <StatCard icon={AlertTriangle} label="Racha Perdedora" value={`${stats.max_consecutive_losses} (${Number(stats.max_consecutive_loss_usd).toLocaleString('en-US', { style: 'currency', currency: 'USD' })})`} color="from-loss/80 to-loss/40" hoverColor="hover:border-loss/50" delay={1.25} />
           </div>
         </motion.div>
 
