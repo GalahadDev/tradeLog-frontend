@@ -170,7 +170,7 @@ export function TradeForm({ open, onOpenChange, onSuccess, tradeToEdit }: TradeF
           </div>
 
           <div className="space-y-2">
-            <Label>PnL Neto ($)</Label>
+            <Label>PnL Bruto ($)</Label>
             <Input
               type="number"
               step="0.01"
