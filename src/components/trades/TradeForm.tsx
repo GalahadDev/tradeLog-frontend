@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { Trade } from "@/types";
 import { tradeService } from "@/lib/api";
 import { uploadScreenshot } from "@/lib/storage";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -27,7 +28,7 @@ export function TradeForm({ open, onOpenChange, onSuccess, tradeToEdit }: TradeF
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
-  const { register, handleSubmit, setValue, reset, watch } = useForm<Partial<TradeFormData>>({
+  const { register, handleSubmit, setValue, reset, watch, control } = useForm<Partial<TradeFormData>>({
     defaultValues: {
       direction: 'long',
       status: 'closed',
@@ -36,7 +37,7 @@ export function TradeForm({ open, onOpenChange, onSuccess, tradeToEdit }: TradeF
     }
   });
 
- useEffect(() => {
+  useEffect(() => {
     if (tradeToEdit) {
       reset({
         ...tradeToEdit,
@@ -72,8 +73,8 @@ export function TradeForm({ open, onOpenChange, onSuccess, tradeToEdit }: TradeF
       }
 
       // Convertir tags string
-      const tagsArray = data.tags 
-        ? data.tags.split(',').map((t: string) => t.trim()).filter((t: string) => t !== "") 
+      const tagsArray = data.tags
+        ? data.tags.split(',').map((t: string) => t.trim()).filter((t: string) => t !== "")
         : [];
 
       const payload = {
@@ -85,12 +86,12 @@ export function TradeForm({ open, onOpenChange, onSuccess, tradeToEdit }: TradeF
         commission: Number(data.commission),
         tags: tagsArray,
         screenshot_url: screenshotUrl,
-        entry_date: data.entry_date 
-          ? new Date(data.entry_date + 'T12:00:00').toISOString() 
+        entry_date: data.entry_date
+          ? new Date(data.entry_date + 'T12:00:00').toISOString()
           : new Date().toISOString(),
-        
-        exit_date: data.exit_date 
-          ? new Date(data.exit_date + 'T12:00:00').toISOString() 
+
+        exit_date: data.exit_date
+          ? new Date(data.exit_date + 'T12:00:00').toISOString()
           : null,
       };
 
@@ -122,7 +123,7 @@ export function TradeForm({ open, onOpenChange, onSuccess, tradeToEdit }: TradeF
         </SheetHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 py-6">
-          
+
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Símbolo</Label>
@@ -130,8 +131,8 @@ export function TradeForm({ open, onOpenChange, onSuccess, tradeToEdit }: TradeF
             </div>
             <div className="space-y-2">
               <Label>Dirección</Label>
-              <Select 
-                onValueChange={(val) => setValue("direction", val as 'long' | 'short')} 
+              <Select
+                onValueChange={(val) => setValue("direction", val as 'long' | 'short')}
                 defaultValue={tradeToEdit?.direction || "long"}
               >
                 <SelectTrigger className="bg-black/20">
@@ -170,10 +171,10 @@ export function TradeForm({ open, onOpenChange, onSuccess, tradeToEdit }: TradeF
 
           <div className="space-y-2">
             <Label>PnL Neto ($)</Label>
-            <Input 
-              type="number" 
-              step="0.01" 
-              {...register("pnl", { required: true })} 
+            <Input
+              type="number"
+              step="0.01"
+              {...register("pnl", { required: true })}
               className={`bg-black/20 font-bold ${Number(watch('pnl')) >= 0 ? 'text-profit' : 'text-loss'}`}
               placeholder="0.00"
             />
@@ -183,11 +184,32 @@ export function TradeForm({ open, onOpenChange, onSuccess, tradeToEdit }: TradeF
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Fecha Entrada</Label>
-              <Input type="date" {...register("entry_date", { required: true })} className="bg-black/20" />
+              <Controller
+                control={control}
+                name="entry_date"
+                rules={{ required: true }}
+                render={({ field }) => (
+                  <DatePicker
+                    date={field.value ? new Date(field.value) : undefined}
+                    setDate={(date) => field.onChange(date ? date.toISOString().split('T')[0] : '')}
+                    className="bg-black/20 w-full"
+                  />
+                )}
+              />
             </div>
             <div className="space-y-2">
               <Label>Fecha Salida</Label>
-              <Input type="date" {...register("exit_date")} className="bg-black/20" />
+              <Controller
+                control={control}
+                name="exit_date"
+                render={({ field }) => (
+                  <DatePicker
+                    date={field.value ? new Date(field.value) : undefined}
+                    setDate={(date) => field.onChange(date ? date.toISOString().split('T')[0] : '')}
+                    className="bg-black/20 w-full"
+                  />
+                )}
+              />
             </div>
           </div>
 
@@ -201,19 +223,19 @@ export function TradeForm({ open, onOpenChange, onSuccess, tradeToEdit }: TradeF
           <div className="space-y-2">
             <Label>Screenshot</Label>
             <div className="border-2 border-dashed border-border rounded-lg p-4 text-center hover:bg-white/5 transition-colors cursor-pointer relative">
-              <Input 
-                type="file" 
-                accept="image/*" 
-                className="absolute inset-0 opacity-0 cursor-pointer" 
+              <Input
+                type="file"
+                accept="image/*"
+                className="absolute inset-0 opacity-0 cursor-pointer"
                 onChange={handleFileChange}
               />
               {previewUrl ? (
                 <div className="relative">
                   <img src={previewUrl} alt="Preview" className="max-h-40 mx-auto rounded-md" />
-                  <Button 
-                    type="button" 
-                    variant="destructive" 
-                    size="icon" 
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="icon"
                     className="absolute -top-2 -right-2 h-6 w-6 rounded-full"
                     onClick={(e) => {
                       e.preventDefault();
